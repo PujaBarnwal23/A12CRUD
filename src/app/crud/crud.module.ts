@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AgGridModule } from 'ag-grid-angular';
 
 import { CRUDRoutingModule } from './crud-routing.module';
 import { ProductFormComponent } from './product-form/product-form.component';
@@ -15,7 +16,8 @@ import { ProductDetailsComponent } from './product-details/product-details.compo
   ],
   imports: [
     CommonModule,
-    CRUDRoutingModule
+    CRUDRoutingModule,
+    AgGridModule,
   ]
 })
 export class CRUDModule { }
