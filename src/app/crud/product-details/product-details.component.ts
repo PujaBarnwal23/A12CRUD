@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CRUDService } from '../services/crud.service';
+import {Product} from "../models/product";
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-details',
@@ -8,9 +10,29 @@ import { CRUDService } from '../services/crud.service';
 })
 export class ProductDetailsComponent implements OnInit {
 
-  constructor(private crudService : CRUDService) { }
+  constructor(private crudService : CRUDService,
+              private activatedRoute : ActivatedRoute) { }
+
+   // @ts-ignore
+       productDetails : Product;
 
   ngOnInit(): void {
-  }
+    let productId = '';
+      if (this.activatedRoute.snapshot.params['productId']) {
+         productId = this.activatedRoute.snapshot.params['productId'];
+         if(productId !== '') {
+            this.loadProductDetails(productId);
+         }
+      }
+
+    }
+    loadProductDetails(productId: any) {
+      this.crudService.loadProductInfo(productId).subscribe(res => {
+        this.productDetails = res;
+      });
+    }
+
+
+
 
 }
