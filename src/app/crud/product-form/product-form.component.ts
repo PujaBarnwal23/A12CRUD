@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CRUDService } from '../services/crud.service';
 import { FormGroup, FormControl, FormBuilder, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
@@ -10,13 +10,24 @@ import { Router } from "@angular/router";
 export class ProductFormComponent implements OnInit {
 // @ts-ignore
   productForm: FormGroup;
+  productId: any;
+  buttonText = 'Create Product';
 
   constructor(private crudService : CRUDService,
               private formBuilder: FormBuilder,
-              private router: Router) { }
+              private router: Router,
+              private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.createProductForm();
+    let productId = '';
+    if (this.activatedRoute.snapshot.params['productId']) {
+       productId = this.activatedRoute.snapshot.params['productId'];
+       console.log('ProductId',productId );
+       if(productId !== '') {
+          this.loadProductDetails(productId);
+       }
+    }
   }
 
   createProductForm() {
@@ -36,23 +47,44 @@ export class ProductFormComponent implements OnInit {
       });
     }
 
-    createProduct(values: any , isUpdate:any) {
+    createProduct(values: any) {
       let formData = new FormData();
       formData.append('name', values.name);
       formData.append('description', values.description);
       formData.append('price', values.price);
 
-      if(isUpdate) {
-        //for update product
+      if(this.productId) {
+        //for update product details
+        formData.append('id', this.productId);
+        this.crudService.updateProductDetails(formData).subscribe(res=>{
+          if (res.result === 'success') {
+             this.navigateTo('/crud/product-list');
+          }
+        });
       } else {
         this.crudService.createProduct(formData).subscribe(res =>{
           if (res.result === 'success') {
-            this.router.navigate(['/crud/product-list']);
+             this.navigateTo('/crud/product-list');
           }
         })
       }
 
     }
+
+    loadProductDetails(productId: any) {
+      this.buttonText = 'Update Product';
+      this.crudService.loadProductInfo(productId).subscribe(res => {
+        this.productForm.controls['name'].setValue(res.p_name);
+        this.productForm.controls['description'].setValue(res.p_description);
+        this.productForm.controls['price'].setValue(res.p_price);
+        this.productId = res.p_id;
+
+      });
+    }
+    navigateTo(route: any) {
+      this.router.navigate([route]);
+    }
+
 
 
 
